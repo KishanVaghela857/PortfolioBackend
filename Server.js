@@ -15,7 +15,7 @@ app.use(cors({
 app.use(bodyParser.json());
 
 app.post("/contact", (req, res) => {
-  const { email, phone, discribe } = req.body;
+  const { email, phone, text } = req.body;
 
   if (!email || !phone || !discribe) {
     return res.status(400).send("All fields are required.");
@@ -33,7 +33,7 @@ app.post("/contact", (req, res) => {
     from: email,
     to: process.env.EMAIL_USER,
     subject: "New Contact Form Submission",
-    text: `Phone: ${phone}\nEmail: ${email}\nMessage: ${discribe}`,
+    text: `Phone: ${phone}\nEmail: ${email}\nMessage: ${text}`,
   };
 
   transporter.sendMail(mailOptions, (error) => {
