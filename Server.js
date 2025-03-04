@@ -6,21 +6,26 @@ require("dotenv").config();
 
 const app = express();
 
+// CORS Configuration
 app.use(cors({
-  origin: "https://kishan-s-profile.netlify.app/", 
+  origin: ["https://kishan-s-profile.netlify.app", "http://localhost:3000"], // Allow multiple origins
   methods: "POST",
   allowedHeaders: "Content-Type"
 }));
 
+// Middleware to parse JSON
 app.use(bodyParser.json());
 
+// POST endpoint to handle form submissions
 app.post("/contact", (req, res) => {
   const { email, phone, text } = req.body;
 
-  if (!email || !phone || !discribe) {
+  // Validate required fields
+  if (!email || !phone || !text) {
     return res.status(400).send("All fields are required.");
   }
 
+  // Create a transporter for sending emails
   const transporter = nodemailer.createTransport({
     service: "Gmail",
     auth: {
@@ -29,6 +34,7 @@ app.post("/contact", (req, res) => {
     },
   });
 
+  // Define email options
   const mailOptions = {
     from: email,
     to: process.env.EMAIL_USER,
@@ -36,15 +42,19 @@ app.post("/contact", (req, res) => {
     text: `Phone: ${phone}\nEmail: ${email}\nMessage: ${text}`,
   };
 
-  transporter.sendMail(mailOptions, (error) => {
+  // Send the email
+  transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
+      console.error("Error sending email:", error);
       return res.status(500).send("Error sending email");
     }
-    res.send("Email sent successfully!");
+    console.log("Email sent:", info.response);
+    res.status(200).send("Email sent successfully!");
   });
 });
 
-const PORT = process.env.PORT || 2525;  // ✅ Use dynamic port for deployment
+// Start the server
+const PORT = process.env.PORT || 2525;
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}...`);
 });
